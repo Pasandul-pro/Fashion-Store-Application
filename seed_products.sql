@@ -1,0 +1,15 @@
+INSERT INTO public.products (name, price, category, image_url, description, sizes) VALUES
+('Elegant Satin Slip Dress', 120, 'women', 'https://images.pexels.com/photos/5822660/pexels-photo-5822660.jpeg', 'Smooth satin finish with a sleek minimal silhouette.', '{"XS","S","M","L","XL"}'),
+('Floral Summer Maxi Dress', 40, 'women', 'https://images.pexels.com/photos/20042388/pexels-photo-20042388.jpeg', 'Lightweight fabric with vibrant floral print for summer.', '{"S","M","L","XL"}'),
+('Classic Bodycon Midi Dress', 56, 'women', 'https://images.pexels.com/photos/1007011/pexels-photo-1007011.jpeg', 'Fitted design highlighting curves with modern elegant style.', '{"XS","S","M","L"}'),
+('Chic Off-Shoulder Evening Dress', 400, 'women', 'https://images.pexels.com/photos/8196220/pexels-photo-8196220.jpeg', 'Stylish off shoulder design perfect for evening occasions.', '{"S","M","L"}'),
+('Minimalist Linen Wrap Dress', 133, 'women', 'https://images.pexels.com/photos/8053672/pexels-photo-8053672.jpeg', 'Breathable linen fabric with clean wrap style design.', '{"S","M","L","XL"}'),
+('Silk A-Line Party Dress', 120, 'women', 'https://images.pexels.com/photos/13583200/pexels-photo-13583200.jpeg', 'Soft silk material with flattering A-line party fit.', '{"XS","S","M","L"}'),
+('Boho Printed Maxi Dress', 120, 'women', 'https://images.pexels.com/photos/24532376/pexels-photo-24532376.jpeg', 'Relaxed boho style with colorful prints and flowy fit.', '{"S","M","L","XL"}'),
+('Ribbed Knit Casual Dress', 400, 'women', 'https://images.pexels.com/photos/17849359/pexels-photo-17849359.jpeg', 'Comfortable ribbed knit fabric ideal for daily wear.', '{"S","M","L","XL"}'),
+('Pleated Chiffon Midi Dress', 56, 'women', 'https://images.pexels.com/photos/4690501/pexels-photo-4690501.jpeg', 'Elegant pleated chiffon design with soft flowing texture.', '{"S","M","L"}'),
+('Vintage Polka Dot Dress', 400, 'women', 'https://images.pexels.com/photos/36391549/pexels-photo-36391549.jpeg', 'Structured blazer style dress with sharp modern look.', '{"S","M","L","XL"}'),
+('Asymmetric Hem Designer Dress', 400, 'women', 'https://images.pexels.com/photos/11390771/pexels-photo-11390771.jpeg', 'Retro inspired polka dot design with timeless appeal.', '{"XS","S","M","L"}'),
+('Classic Cotton T-Shirt', 40, 'men', 'https://images.pexels.com/photos/4066288/pexels-photo-4066288.jpeg', 'Soft cotton fabric with comfortable everyday casual fit.', '{"S","M","L","XL","XXL"}'),
+('Oversized Graphic T-Shirt', 56, 'men', 'https://images.pexels.com/photos/16887216/pexels-photo-16887216.png', 'Oversized design with bold graphic streetwear style print.', '{"S","M","L","XL","XXL"}'),
+('Slim Fit Polo T-Shirt', 244, 'men', 'https://images.pexels.com/photos/14998306/pexels-photo-14998306.jpeg', 'Slim fit polo with clean collar and premium finish.', '{"S","M","L","XL"}');
