@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, ShoppingBag, User, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartCount } = useCart();
+  const { user } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -44,7 +46,7 @@ const Navbar = () => {
 
         <div className="nav-right">
           <button className="nav-icon-btn"><Search size={20} /></button>
-          <button className="nav-icon-btn"><User size={20} /></button>
+          <Link to={user ? "/profile" : "/login"} className="nav-icon-btn"><User size={20} /></Link>
           <Link to="/cart" className="nav-icon-btn cart-icon">
             <ShoppingBag size={20} />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
@@ -58,8 +60,7 @@ const Navbar = () => {
           <li><Link to="/women">WOMEN</Link></li>
           <li><Link to="/men">MEN</Link></li>
           <li><Link to="/">COLLECTIONS</Link></li>
-          <li><Link to="/about">ABOUT</Link></li>
-          <li><Link to="/contact">CONTACT</Link></li>
+          <li><Link to={user ? "/profile" : "/login"}>{user ? "PROFILE" : "LOGIN"}</Link></li>
         </ul>
       </div>
 

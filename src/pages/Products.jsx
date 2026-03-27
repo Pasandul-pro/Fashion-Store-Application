@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
+import { insforge } from '../lib/insforge';
 
 const Products = ({ category }) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortBy, setSortBy] = useState('newest');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let result = products.filter(p => p.category === category);
-    
-    if (sortBy === 'price-low') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-high') {
-      result.sort((a, b) => b.price - a.price);
-    }
+    const fetchProducts = async () => {
+      setLoading(true);
+      const { data } = await insforge.database.from('products').select('*').eq('category', category);
+      
+      if (data) {
+        let result = [...data];
+        
+        if (sortBy === 'price-low') {
+          result.sort((a, b) => a.price - b.price);
+        } else if (sortBy === 'price-high') {
+          result.sort((a, b) => b.price - a.price);
+        }
 
-    setFilteredProducts(result);
+        setFilteredProducts(result);
+      }
+      setLoading(false);
+    };
+
+    fetchProducts();
   }, [category, sortBy]);
 
   return (

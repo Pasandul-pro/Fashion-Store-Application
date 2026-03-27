@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
 import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
+import { insforge } from '../lib/insforge';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-  const featuredProducts = products.slice(0, 4);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      const { data } = await insforge.database.from('products').select('*').limit(4);
+      if (data) setFeaturedProducts(data);
+    };
+    fetchFeatured();
+  }, []);
 
   return (
     <div className="home-page">

@@ -3,11 +3,16 @@ import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ChevronLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { insforge } from '../lib/insforge';
 
 const Checkout = () => {
   const { cart, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isFinished, setIsFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentProof, setPaymentProof] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -25,14 +30,89 @@ const Checkout = () => {
     return null;
   }
 
+  if (!user && !isFinished) {
+    return (
+      <div className="checkout-page">
+        <div className="container flex-center" style={{ minHeight: '60vh' }}>
+          <h2>LOGIN REQUIRED</h2>
+          <p style={{ marginBottom: '20px', marginTop: '10px' }}>Please sign in to complete your checkout and manage your orders.</p>
+          <button className="btn btn-primary" onClick={() => navigate('/login')}>GO TO LOGIN</button>
+        </div>
+      </div>
+    );
+  }
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setPaymentProof(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsFinished(true);
-    clearCart();
+    if (!paymentProof) {
+      alert("Please upload a payment proof receipt.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // 1. Upload payment proof
+      const fileExt = paymentProof.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `receipts/${fileName}`;
+      
+      const { error: uploadError } = await insforge.storage
+        .from('payment-proofs')
+        .upload(filePath, paymentProof);
+        
+      if (uploadError) throw uploadError;
+
+      // 2. Create Order
+      const { data: orderData, error: orderError } = await insforge.database
+        .from('orders')
+        .insert([{
+          user_id: user.id,
+          total_amount: cartTotal,
+          shipping_address: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address: formData.address,
+            city: formData.city,
+            zip: formData.zip
+          },
+          payment_proof_url: filePath
+        }])
+        .select()
+        .single();
+        
+      if (orderError) throw orderError;
+
+      // 3. Create Order Items
+      const orderItems = cart.map(item => ({
+        order_id: orderData.id,
+        product_id: item.id,
+        quantity: item.quantity,
+        size: item.size,
+        price_at_purchase: item.price
+      }));
+
+      const { error: itemsError } = await insforge.database.from('order_items').insert(orderItems);
+      if (itemsError) throw itemsError;
+
+      setIsFinished(true);
+      clearCart();
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      alert("An error occurred during checkout. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isFinished) {
@@ -137,42 +217,24 @@ const Checkout = () => {
               </section>
 
               <section className="form-section">
-                <h2>PAYMENT METHOD</h2>
+                <h2>PAYMENT PROOF UPLOAD</h2>
                 <div className="form-group">
+                  <p style={{fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px'}}>
+                    Please upload an image of your bank transfer or payment receipt.
+                  </p>
                   <input 
-                    type="text" 
-                    name="cardNumber" 
-                    placeholder="Card Number" 
-                    required 
-                    value={formData.cardNumber}
-                    onChange={handleInputChange}
+                    type="file" 
+                    accept="image/*,application/pdf"
+                    onChange={handleFileChange}
+                    required
+                    style={{ padding: '10px' }}
                   />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <input 
-                      type="text" 
-                      name="expiry" 
-                      placeholder="MM / YY" 
-                      required 
-                      value={formData.expiry}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input 
-                      type="text" 
-                      name="cvv" 
-                      placeholder="CVV" 
-                      required 
-                      value={formData.cvv}
-                      onChange={handleInputChange}
-                    />
-                  </div>
                 </div>
               </section>
 
-              <button type="submit" className="place-order-btn">PLACE ORDER</button>
+              <button type="submit" className="place-order-btn" disabled={isSubmitting}>
+                {isSubmitting ? 'PROCESSING...' : 'PLACE ORDER'}
+              </button>
             </form>
           </div>
 
@@ -352,26 +414,7 @@ const Checkout = () => {
         }
 
         .checkout-finished {
-          height: 90vh;
-          display: flex;
-          align-items: center;
-          text-align: center;
-        }
-
-        .success-message {
-          max-width: 500px;
-          margin: 0 auto;
-        }
-
-        .success-message h1 {
-          font-size: 32px;
-          margin: 30px 0 20px;
-        }
-
-        .success-message p {
-          color: var(--text-secondary);
-          margin-bottom: 40px;
-          line-height: 1.6;
+          min-height: 80vh;
         }
 
         @media (max-width: 1024px) {

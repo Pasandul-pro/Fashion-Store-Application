@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Heart, ChevronRight, ChevronLeft } from 'lucide-react';
-import { products } from '../data/products';
+import { insforge } from '../lib/insforge';
 import { useCart } from '../context/CartContext';
 
 const ProductDetail = () => {
@@ -15,13 +15,18 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState('details');
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === parseInt(id));
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedSize(foundProduct.sizes[0]);
-    } else {
-      navigate('/');
-    }
+    const fetchProduct = async () => {
+      const { data, error } = await insforge.database.from('products').select('*').eq('id', id).single();
+      if (data) {
+        setProduct(data);
+        if (data.sizes && data.sizes.length > 0) {
+          setSelectedSize(data.sizes[0]);
+        }
+      } else {
+        navigate('/');
+      }
+    };
+    fetchProduct();
   }, [id, navigate]);
 
   if (!product) return null;
